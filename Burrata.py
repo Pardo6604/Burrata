@@ -32,12 +32,14 @@ def get_stats(ticker:str) -> np.array:
     recommendations = company.recommendations_summary
     recommendationMean = get_recommendationMean(recommendations) # Complete
 
-    retrunOnEquity = company.info['retrunOnEquity'] 
-    heldPercentInstitutions = company.info['heldPercentInstitutions']
-    targetMeanPrice = company.info['targetMeanPrice']
-    currentPrice = company.info['currentPrice']
+    retrunOnEquity = company.info.get('retrunOnEquity')
+    heldPercentInstitutions = company.info.get('heldPercentInstitutions')
+    targetMeanPrice = company.info.get('targetMeanPrice')
+    currentPrice = company.info.get('currentPrice')
 
-    block = [np.array([ticker, recommendationMean, retrunOnEquity, heldPercentInstitutions, targetMeanPrice, currentPrice])]
+    block = np.array([ticker, recommendationMean, retrunOnEquity, heldPercentInstitutions, targetMeanPrice, currentPrice])
+
+    return block
 
 
 
@@ -62,29 +64,21 @@ def get_recommendationMean(df:pd.DataFrame):
     return sum/total
 
 def buildDf(tickerList:list[str]) -> pd.DataFrame:
-    blocksList = np.array([])
+    blockList = []
 
     for ticker in tickerList:
         block = get_stats(ticker)
-        blockList = np.append(blockList, block)
-    
+        blockList.append(block)
+
+    blockList = np.vstack(blockList)
+        
     blockDf = pd.DataFrame(blockList, columns=['ticker', 'recommendationMean', 'retrunOnEquity', 'heldPercentInstitutions', 'targetMeanPrice', 'currentPrice'])
     return blockDf
 
 
-
-
-
-
-
- #TESTS
-intel = yf.Ticker("INTC")
-
-
-
-
-
-
+#TESTS
+test = buildDf(['AAPL','INTC'])
+print(test)
 
 """
 Model wiht 4 numerical inputs / 5 units, tanh activation / 6 units, relu activation / 2, tanh activation
